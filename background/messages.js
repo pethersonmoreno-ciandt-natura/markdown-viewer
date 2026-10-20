@@ -38,6 +38,10 @@ md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webreq
       })
     }
     else if (req.message === 'prism') {
+      if (!/^[a-zA-Z0-9_-]+$/.test(req.language)) {
+        return sendResponse({error: 'Language inválida.'});
+      }
+
       chrome.scripting.executeScript({
         target: {tabId: sender.tab.id},
         files: [
@@ -47,6 +51,10 @@ md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webreq
       }, sendResponse)
     }
     else if (req.message === 'mathjax') {
+      if (!/^[a-zA-Z0-9_-]+$/.test(req.extension)) {
+        return sendResponse({error: 'Extension inválida.'});
+      }
+
       chrome.scripting.executeScript({
         target: {tabId: sender.tab.id},
         files: [
