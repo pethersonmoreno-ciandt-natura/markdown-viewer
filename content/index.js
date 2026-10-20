@@ -188,12 +188,12 @@ function mount () {
         }
         else {
           dom.push(m('#_html', {oncreate: oncreate.html, onupdate: onupdate.html, class: theme},
-            m.trust(state.html)
+            m.trust(DOMPurify.sanitize(state.html))
           ))
         }
 
         if (state.content.toc) {
-          dom.push(m('#_toc.tex2jax-ignore', m.trust(state.toc)))
+          dom.push(m('#_toc.tex2jax-ignore', m.trust(DOMPurify.sanitize(state.toc))))
           state.raw ? $('body').classList.remove('_toc-left') : $('body').classList.add('_toc-left')
         }
 

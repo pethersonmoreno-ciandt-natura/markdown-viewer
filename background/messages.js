@@ -2,6 +2,14 @@
 md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webrequest, icon}) => {
 
   return (req, sender, sendResponse) => {
+    // Validação de remetente interno
+    var isExtensionPage = sender.url.startsWith(chrome.runtime.getURL(''));
+    var isSensitiveCommand = /^(popup|options|origin|custom)\./.test(req.message);
+
+    if (isSensitiveCommand && !isExtensionPage) {
+      console.warn('Tentativa bloqueada de escalonamento de privilégio:', req.message);
+      return sendResponse({error: 'Acesso negado: Contexto não confiável.'});
+    }
 
     // content
     if (req.message === 'markdown') {
@@ -21,11 +29,19 @@ md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webreq
       sendResponse({message: 'html', html})
     }
     else if (req.message === 'autoreload') {
+      if (req.location !== sender.url && req.location !== (sender.tab && sender.tab.url)) {
+        return sendResponse({err: 'Acesso negado: URL de autoreload inválida.'})
+      }
+
       xhr.get(req.location, (err, body) => {
         sendResponse({err, body})
       })
     }
     else if (req.message === 'prism') {
+      if (!/^[a-zA-Z0-9_-]+$/.test(req.language)) {
+        return sendResponse({error: 'Language inválida.'});
+      }
+
       chrome.scripting.executeScript({
         target: {tabId: sender.tab.id},
         files: [
@@ -35,6 +51,10 @@ md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webreq
       }, sendResponse)
     }
     else if (req.message === 'mathjax') {
+      if (!/^[a-zA-Z0-9_-]+$/.test(req.extension)) {
+        return sendResponse({error: 'Extension inválida.'});
+      }
+
       chrome.scripting.executeScript({
         target: {tabId: sender.tab.id},
         files: [
