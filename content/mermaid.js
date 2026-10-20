@@ -12,7 +12,7 @@ var mmd = (() => {
 
         Array.from(document.querySelectorAll('pre code.mermaid')).forEach((diagram, index) => {
           diagram.removeAttribute('data-processed')
-          diagram.innerHTML = definitions[index]
+          diagram.innerHTML = DOMPurify.sanitize(definitions[index])
         })
       }
       var theme =
