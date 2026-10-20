@@ -2,6 +2,14 @@
 md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webrequest, icon}) => {
 
   return (req, sender, sendResponse) => {
+    // Validação de remetente interno
+    var isExtensionPage = sender.url.startsWith(chrome.runtime.getURL(''));
+    var isSensitiveCommand = /^(popup|options|origin|custom)\./.test(req.message);
+
+    if (isSensitiveCommand && !isExtensionPage) {
+      console.warn('Tentativa bloqueada de escalonamento de privilégio:', req.message);
+      return sendResponse({error: 'Acesso negado: Contexto não confiável.'});
+    }
 
     // content
     if (req.message === 'markdown') {
