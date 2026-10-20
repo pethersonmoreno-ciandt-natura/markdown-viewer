@@ -188,7 +188,7 @@ function mount () {
         }
         else {
           dom.push(m('#_html', {oncreate: oncreate.html, onupdate: onupdate.html, class: theme},
-            m.trust(state.html)
+            m.trust(DOMPurify.sanitize(state.html))
           ))
         }
 
