@@ -21,6 +21,10 @@ md.messages = ({storage: {defaults, state, set}, compilers, mathjax, xhr, webreq
       sendResponse({message: 'html', html})
     }
     else if (req.message === 'autoreload') {
+      if (req.location !== sender.url && req.location !== (sender.tab && sender.tab.url)) {
+        return sendResponse({err: 'Acesso negado: URL de autoreload inválida.'})
+      }
+
       xhr.get(req.location, (err, body) => {
         sendResponse({err, body})
       })
